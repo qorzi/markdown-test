@@ -1,35 +1,79 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const markdownStyle = {
+    h1: {
+      fontSize: "2rem",
+      fontWeight: "bold",
+      padding: "2rem 1rem",
+    },
+    h2: {
+      fontSize: "1.5rem",
+      fontWeight: "bold",
+      padding: "1.5rem 1rem",
+    },
+    text: {
+      fontSize: "1rem",
+      fontWeight: "normal",
+      padding: "1rem 1rem",
+    },
+  };
+
+  const [textBox, setTextBox] = useState([
+    {
+      style: markdownStyle.text,
+      text: "abc",
+    },
+    {
+      style: markdownStyle.text,
+      text: "def",
+    },
+  ]);
+
+  const setTextInput = (e: React.KeyboardEvent, idx: number) => {
+    const targetInnerText = (e.target as HTMLDivElement).innerText;
+    const spaceIdx = targetInnerText.indexOf(" ");
+    if (e.key === " ") {
+      const mark = targetInnerText.substring(0, spaceIdx);
+      if (mark == "#") {
+        (e.target as HTMLDivElement).innerText = targetInnerText.substring(
+          spaceIdx + 1
+        );
+        const newTextBox = [...textBox];
+        newTextBox[idx].style = markdownStyle.h1;
+        setTextBox(newTextBox);
+      } else if (mark == "##") {
+        (e.target as HTMLDivElement).innerText = targetInnerText.substring(
+          spaceIdx + 1
+        );
+        const newTextBox = [...textBox];
+        newTextBox[idx].style = markdownStyle.h2;
+        setTextBox(newTextBox);
+      }
+    } else if (e.key === "Backspace" && textBox[idx].text === targetInnerText) {
+      const newTextBox = [...textBox];
+      newTextBox[idx].style = markdownStyle.text;
+      setTextBox(newTextBox);
+    }
+    textBox[idx].text = (e.target as HTMLDivElement).innerText;
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div>
+      {textBox.map((value, idx) => {
+        return (
+          <div
+            key={`textbox-${idx}`}
+            style={value.style}
+            onKeyUp={(e: React.KeyboardEvent) => setTextInput(e, idx)}
+            contentEditable
+          >
+            {value.text}
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
-export default App
+export default App;
